@@ -23,7 +23,6 @@ if ans.lower() == 'json':
     for names in arr:
         for name in names:
             data = dict()
-            print(name)
             fname = name.split()[0]
             lname = name.split()[1]
             data['first_name'] = fname
