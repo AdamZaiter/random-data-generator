@@ -39,12 +39,12 @@ elif ans.lower() == 'csv':
     csv_array = []
     for names in arr:
         for name in names:
-            arr = []
-            arr.append(name.split()[0])
-            arr.append(name.split()[1])
-            arr.append(random.randint(100000000, 999999999))
-            arr.append(name.split()[0] + '@test-domain.com')
-            csv_array.append(arr)
+            a = []
+            a.append(name.split()[0])
+            a.append(name.split()[1])
+            a.append(random.randint(100000000, 999999999))
+            a.append(name.split()[0] + '@test-domain.com')
+            csv_array.append(a)
     with open('random_data.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         for row in csv_array:
