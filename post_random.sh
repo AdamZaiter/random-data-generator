@@ -27,9 +27,9 @@ done
 if [ $OPTIND -eq 1 ]; then usage; exit 2; fi
 shift $((OPTIND-1))
 
-jq -c '.[]' $file | while read i; do
+jq -c '.[]' $file | while read line; do
     curl --header "Content-Type: application/json" \
     --request POST \
-    --data $i \
+    --data $line \
     $HOST$route 
 done
