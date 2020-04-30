@@ -1,4 +1,4 @@
-# Random data generator - python script
+# Random data generator
 
 ## Usage
 For now, this script just generates random users for a database (First name, last name, phone number, email).
