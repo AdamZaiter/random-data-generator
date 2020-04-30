@@ -15,8 +15,9 @@ EOF
   exit 1
 }
 
-unset name
-route=default_route file=default_file 
+route=''
+file='' 
+
 while getopts 'f:r:' o; do
   case $o in
     (f) file=$OPTARG;;
