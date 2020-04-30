@@ -1,7 +1,5 @@
 #!/bin/sh
 # Shell script for populating a database
-# First argument is for the input file with the data
-# Second argument is for the specific route
 
 PROGNAME=$0
 usage() {
