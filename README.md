@@ -1,11 +1,10 @@
 # Random data generator - python script
 
-----
+
 ## Install
 pip install -r requirements.txt
 
 
-----
 ## Usage
 For now, this script just generates random users for a database(First name, last name, phone number, email).
 
