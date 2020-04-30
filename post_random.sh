@@ -23,8 +23,12 @@ while getopts 'f:r:' o; do
     (*) usage
   esac
 done
-if [ $OPTIND -eq 1 ]; then usage; exit 2; fi
-shift $((OPTIND-1))
+
+if [ "$#" -ne 4 ]; then
+      echo "You must enter exactly 2 command line arguments";
+      usage;
+      exit 2;
+fi
 
 jq -c '.[]' $file | while read data; do
     curl --header "Content-Type: application/json" \
