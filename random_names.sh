@@ -36,6 +36,6 @@ for i in $(seq 1 $num);
     $(curl -s 'https://www.behindthename.com/random/random.php?number=2&sets=5&gender=both&surname=&randomsurname=yes&norare=yes&usage_eng=1' | 
       grep -Po '/name/.*?">.*?</a>' |sed 's/.*">//g' |
       sed 's/<\/a>//g'  |
-      xargs -n3 >> $outfile)
+      xargs -n3 |  tr -s '[:blank:]' ',' >> $outfile)
   done;
 echo "Names saved to $outfile"
