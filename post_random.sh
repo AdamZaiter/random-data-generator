@@ -1,5 +1,5 @@
 #!/bin/sh
-# Shell script for populating a database
+# Shell script for populating a database with random users
 
 PROGNAME=$0
 usage() {
