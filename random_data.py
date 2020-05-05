@@ -5,20 +5,38 @@ import json
 import random
 import re
 import requests
+import argparse
 
+
+parser = argparse.ArgumentParser(
+    description='Random data generator')
+parser.add_argument('outfile', 
+                    help='Provide an output file (.json or .csv)')
+parser.add_argument('-u', '--users', action='store_true',
+                    help='Generate data for users')
+parser.add_argument('-s', '--students', action='store_true',
+                    help='Generate data for students')
+parser.add_argument('-t', '--teachers', action='store_true',
+                    help='Generate data for teachers')
+parser.add_argument('-c', '--classes', action='store_true',
+                    help='Generate data for classes')
+args = parser.parse_args()
+
+outfile = args.outfile
+file_type = outfile.split('.')[1]
 
 arr = []
-n = int(input('How many names do you want? (multiples of 10): ')) // 10
-for i in range(n):
-    page = requests.get('https://www.name-generator.org.uk/quick/')
-    soup = BeautifulSoup(page.content, 'html.parser')
-    target = str(soup.find_all('div', class_='name_heading'))
-    name_search = (re.findall(r'(?:>)([a-zA-Z]* [a-zA-Z]*)', target))
-    arr.append(name_search)
+n = int(input('How many names do you want?: ')) // 10
 
-ans = input('Do you want to save as JSON or csv? (json/csv): ')
+if args.users:
+    for i in range(n):
+        page = requests.get('https://www.name-generator.org.uk/quick/')
+        soup = BeautifulSoup(page.content, 'html.parser')
+        target = str(soup.find_all('div', class_='name_heading'))
+        name_search = (re.findall(r'(?:>)([a-zA-Z]* [a-zA-Z]*)', target))
+        arr.append(name_search)
 
-if ans.lower() == 'json':
+if file_type.lower() == 'json':
     json_array = []
     for names in arr:
         for name in names:
@@ -31,11 +49,11 @@ if ans.lower() == 'json':
             data['phone_number'] = random.randint(100000000, 999999999)
             data['email'] = fname + '@test-domain.com'
             json_array.append(data)
-    with open('random_data.json', 'w') as outfile:
+    with open(outfile, 'a') as outfile:
             json.dump(json_array, outfile)
-    print('File was saved in the current working directory as random_data.json')
+    print('File was saved as', args.outfile)
 
-elif ans.lower() == 'csv':
+elif file_type.lower() == 'csv':
     csv_array = []
     for names in arr:
         for name in names:
@@ -45,9 +63,9 @@ elif ans.lower() == 'csv':
             a.append(random.randint(100000000, 999999999))
             a.append(name.split()[0] + '@test-domain.com')
             csv_array.append(a)
-    with open('random_data.csv', 'w', newline='') as file:
+    with open(outfile, 'a', newline='') as file:
         writer = csv.writer(file)
         for row in csv_array:
             writer.writerow(row)
-    print('File was saved in the current working directory as random_data.csv')
-
+    print('File was saved as', outfile)
+          
