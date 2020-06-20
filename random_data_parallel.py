@@ -1,4 +1,3 @@
-#!/bin/python
 import argparse
 from bs4 import BeautifulSoup
 import csv
@@ -11,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 def get_name(session):
-    arr = []
     url = 'https://www.behindthename.com/random/'\
         'random.php?number=2&sets=5&gender=both&surname=&randomsurname='\
         'yes&norare=yes&usage_eng=1%27'
@@ -21,12 +19,12 @@ def get_name(session):
         a = [x[1] for x in name_search]
         for i in range(0, len(a), 3):
             if i + 2 < len(a):
-                arr.append([a[i] + ' ' + a[i+1] + ' ' + a[i+2]])
-    return arr
+                yield a[i] + ' ' + a[i+1] + ' ' + a[i+2]
 
 
 async def get_async_names(n):
     global arr
+    print("Downloading names...")
     with ThreadPoolExecutor(max_workers=10) as executor:
         with requests.Session() as session:
             loop = asyncio.get_event_loop()
@@ -41,22 +39,23 @@ async def get_async_names(n):
             for res in await asyncio.gather(*tasks):
                 arr.append(res)
 
-
 def make_json(arr, outfile):
     json_array = []
-    for sub_arr in arr:
-        for names in sub_arr:
-            for name in names:
-                data = dict()
-                fname = name.split()[0]
-                mname = name.split()[1]
-                lname = name.split()[2]
-                data['first_name'] = fname
-                data['middle_name'] = mname
-                data['last_name'] = lname
-                data['phone_number'] = random.randint(100000000, 999999999)
-                data['email'] = fname + '@testdomain.com'
-                json_array.append(data)
+    print_chars = ["|", "/", "-", "\\"]
+    for i, names in enumerate(arr):
+        print(f"\rGenerating file {print_chars[i%4]}", end="", flush=True)
+        for name in names:
+            data = dict()
+            fname = name.split()[0]
+            mname = name.split()[1]
+            lname = name.split()[2]
+            data['first_name'] = fname
+            data['middle_name'] = mname
+            data['last_name'] = lname
+            data['phone_number'] = random.randint(100000000, 999999999)
+            data['email'] = fname + '@testdomain.com'
+            json_array.append(data)
+    print()
     with open(outfile, 'a') as o:
             json.dump(json_array, o)
     print('File was saved as', outfile)
@@ -64,15 +63,18 @@ def make_json(arr, outfile):
 
 def make_csv(arr, outfile):
     csv_array = []
-    for sub_arr in arr:
-        for names in sub_arr:
-            for name in names:
-                a = []
-                a.append(name.split()[0])
-                a.append(name.split()[1])
-                a.append(random.randint(100000000, 999999999))
-                a.append(name.split()[0] + '@test-domain.com')
-                csv_array.append(a)
+    print_chars = ["|", "/", "-", "\\"]
+    for i, names in enumerate(arr):
+        for name in names:
+            print(f"\rGenerating file {print_chars[i%4]}", end="", flush=True)
+            a = []
+            a.append(name.split()[0])
+            a.append(name.split()[1])
+            a.append(name.split()[2])
+            a.append(random.randint(100000000, 999999999))
+            a.append(name.split()[0] + '@test-domain.com')
+            csv_array.append(a)
+    print()
     with open(outfile, 'a', newline='') as file:
         writer = csv.writer(file)
         for row in csv_array:
