@@ -36,7 +36,6 @@ func main() {
 func getNames(filename string) {
 	resp, err := http.Get("https://www.behindthename.com/random/random.php?number=2&sets=5&gender=both&surname=&randomsurname=yes&norare=yes&usage_eng=1%27")
 	check(err)
-
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	str := string(body)
