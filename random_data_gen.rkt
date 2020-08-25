@@ -7,26 +7,28 @@
 
 (define MAX-THREADS 100)
 (define URL "https://www.behindthename.com/random/random.php?number\
-=2&sets=5&gender=both&surname=&randomsurname=yes&norare=yes&usage_eng=1%27")
+  =2&sets=5&gender=both&surname=&randomsurname=yes&norare=yes&usage_eng=1%27")
+(define work-channel (make-channel))
+(define result-channel (make-channel))
 
 (define (make-request url)
   (http-sendrecv/url
     (string->url url)
     #:method #"GET"))
 
-#| 1st command line argument is the number of names needed |#
-#| 2nd is the file name with the extension json, csv or txt |#
 (define (parse-args)
-  (define x (current-command-line-arguments))
-  (if (and (number? (string->number (vector-ref x 0)))
-           (= (vector-length x) 2))
-    (let ([ctr (string->number (vector-ref x 0))]
-          [str (vector-ref x 1)])
-      (values (if (> ctr 5) (quotient ctr 5) 1)
-              str))
-    (begin (printf "Usage: \nFirst argument -> Number of names needed
-    Second Argument -> file name(.json, .csv or .txt)\n")
-    (exit))))
+  (define number (make-parameter #f))
+  (define file (make-parameter #f))
+  (command-line
+    #:program "Random names"
+    #:once-each
+    (("-n" "--number") num "Number of names to produce"
+                       (number num))
+    (("-f" "--file") f "Save file" 
+                     (file f))
+    #:usage-help "racket random_data_gen.rkt -n <number> -f <filename>")
+  (values (quotient (string->number (number)) 5) (file)))
+  
 
 (define (comma-format names)
   (format "~a,~a,~a,~a,~a@test-domain.com" 
@@ -88,9 +90,6 @@
                                (displayln res out)))
       (output-to-file (cdr names) format-style file-name))))
 
-(define work-channel (make-channel))
-(define result-channel (make-channel))
-
 (define (make-work-thread id format-style file-name)
   (thread 
     (let loop()
@@ -116,24 +115,22 @@
               (equal? ".csv" extension)
               (equal? ".txt" extension))
         extension
-        (begin (printf "Usage: \nFirst argument -> Number of names needed
-                       Second Argument -> file name(.json, .csv or .txt)\n")
-               (exit)))))
-
-  (define format-style (if (equal? ".json" file-extension)
-                         json-format
-                         comma-format))
-  (make-workers iterations format-style file-name)
-  (for ([i iterations])
-    (channel-put work-channel 1))
-  (call-with-output-file file-name
-                         #:exists 'append
-                         (lambda (out)
-                           (display "[" out)))
-  (exit-after-completion 0 iterations)
-  (call-with-output-file file-name
-                         #:exists 'append
-                         (lambda (out)
-                           (display "]," out))))
+        (begin (printf "Output file has to be one of .json, .csv, .txt")
+                 (exit)))))
+        (define format-style (if (equal? ".json" file-extension)
+                               json-format
+                               comma-format))
+        (make-workers iterations format-style file-name)
+        (for ([i iterations])
+          (channel-put work-channel 1))
+        (call-with-output-file file-name
+                               #:exists 'append
+                               (lambda (out)
+                                 (display "[" out)))
+        (exit-after-completion 0 iterations)
+        (call-with-output-file file-name
+                               #:exists 'append
+                               (lambda (out)
+                                 (display "]," out))))
 
 (main)
